@@ -1,0 +1,12 @@
+version: "3.9"
+
+services:
+  ratevolut-db:
+    container_name: "ratevolut-db"
+    image: postgres:14.0
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_DB=ratevolut
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
