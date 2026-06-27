@@ -5,11 +5,9 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
             http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-latest.xsd">
 
-    <changeSet author="tkehayov" id="1" context="dev,prod">
-        <sqlFile path="changes/1-create-rates-table.sql" relativeToChangelogFile="true"/>
-    </changeSet>
-    <changeSet author="tkehayov" id="2" context="dev">
-        <sqlFile path="changes/2-seed-rates-data.sql" relativeToChangelogFile="true"/>
-    </changeSet>
+<!--    <changeSet author="tkehayov" id="1" context="dev,prod">-->
+<!--        <sqlFile path="changes/1-create-rates-table.sql" relativeToChangelogFile="true"/>-->
+<!--    </changeSet>-->
+
 
 </databaseChangeLog>
