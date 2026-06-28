@@ -9,14 +9,19 @@ import com.zetta.ratevolut.repositories.balance.BalanceAmountView;
 import com.zetta.ratevolut.repositories.balance.BalanceRepository;
 import com.zetta.ratevolut.repositories.conversions.ConversionEntity;
 import com.zetta.ratevolut.repositories.conversions.ConversionRepository;
+import com.zetta.ratevolut.rest.conversions.ConversionGetResponse;
 import com.zetta.ratevolut.rest.conversions.ConversionResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDateTime;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -26,10 +31,10 @@ public class ConversionService {
     private final ConversionRepository conversionRepository;
 
     @Transactional
-    public ConversionResponse execute(Conversion conversion) {
+    public ConversionResponse create(Conversion conversion) {
         BalanceAmountView balances = balanceRepository
                 .findAmountsByClientIdAndCurrencies(conversion.clientId(), conversion.sourceCurrency(), conversion.targetCurrency())
-                .orElseThrow(() ->  new BalanceNotFoundException(conversion.clientId().toString()));
+                .orElseThrow(() -> new BalanceNotFoundException(conversion.clientId().toString()));
         Rate rate = rateService.getRate(conversion.sourceCurrency(), conversion.targetCurrency());
 
         BigDecimal debitAmount = conversion.amount();
@@ -73,6 +78,25 @@ public class ConversionService {
                 exchangeRate,
                 savedConversion.getCreatedAt(),
                 new ConversionResponse.UpdatedBalances(newSourceBalance, newTargetBalance)
+        );
+    }
+
+    public Page<ConversionGetResponse> getConversions(Optional<UUID> clientId, Pageable pageable) {
+        UUID targetId = clientId.orElse(null);
+        Page<ConversionEntity> entityPage = conversionRepository.findAllConversions(targetId,pageable);
+
+        return entityPage.map(this::convertToResponse);
+    }
+
+    private ConversionGetResponse convertToResponse(ConversionEntity entity) {
+        return new ConversionGetResponse(
+                entity.getId(),
+                entity.getSourceAmount(),
+                entity.getSourceCurrency(),
+                entity.getTargetAmount(),
+                entity.getTargetCurrency(),
+                entity.getExchangeRate(),
+                entity.getCreatedAt()
         );
     }
 }
