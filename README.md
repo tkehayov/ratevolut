@@ -40,7 +40,10 @@ docker run -d \
 ratevolut
 ```
 ### Notes
-
+- I am using UUID as a user_id and everytime db is generating different. So I can't provide user_id out of the box. You could connect db and get it by:   
+```URL: jdbc:postgresql://localhost:5432/ratevolut```
+```USERNAME:postgres ```
+```PASSWORD:postgres ```
 - The database schema is applied automatically via Liquibase on startup. No manual migration step is required.
 - The Spring profile (`prod`/`dev`) is set at build time via `--build-arg SPRING_PROFILES_ACTIVE`. The `dev` profile seeds test data; `prod` does not.
 - The service runs as a non-root user inside the container.
