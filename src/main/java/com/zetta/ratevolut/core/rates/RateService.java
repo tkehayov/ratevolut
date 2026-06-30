@@ -10,7 +10,7 @@ public class RateService {
 
     public Rate getRate(String from, String to) {
         String fromCode = from.toUpperCase();
-        String toCode   = to.toUpperCase();
+        String toCode = to.toUpperCase();
 
         return primaryProvider.fetchRate(fromCode, toCode);
     }

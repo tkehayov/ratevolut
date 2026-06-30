@@ -5,6 +5,7 @@ import com.zetta.ratevolut.core.exceptions.RateProviderUnavailableException;
 import com.zetta.ratevolut.core.rates.FxRateProvider;
 import com.zetta.ratevolut.core.rates.Rate;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
@@ -26,6 +27,7 @@ public class FrankfurterProvider implements FxRateProvider {
     private final RestClient frankfurterRestClient;
 
     @Override
+    @Cacheable(cacheNames = "rates", key = "#from + '_' + #to")
     public Rate fetchRate(String from, String to) {
         List<FrankfurterResponse> response;
         try {

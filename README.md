@@ -55,3 +55,9 @@ ratevolut
 1. The key is stored as a unique column on the `conversions` row at the time of the first successful request.
 2. On replay, the service looks up the existing row by key and returns it immediately — the balance update and Frankfurter API call are skipped entirely.
 3. If no key is provided the request is treated as a regular (non-idempotent) call.
+
+## Caching
+According frankfurter's docs(https://frankfurter.dev/v1/) updates new rates **once a day, around 16:00 CET**
+![img.png](img.png)
+
+We handle this using **2-Hour Fixed TTL:**. However, a strict 24-hour cache window risks serving outdated.
