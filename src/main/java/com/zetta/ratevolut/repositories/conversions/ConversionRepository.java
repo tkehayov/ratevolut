@@ -18,5 +18,5 @@ public interface ConversionRepository extends JpaRepository<ConversionEntity, UU
             """)
     Page<ConversionEntity> findAllConversions(@Param("clientId") UUID clientId, Pageable pageable);
 
-    Optional<ConversionEntity> findByIdempotencyKey(String idempotencyKey);
+    Optional<ConversionEntity> findByIdempotencyKey(UUID idempotencyKey);
 }

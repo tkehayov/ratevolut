@@ -51,5 +51,5 @@ public class ConversionEntity {
     private LocalDateTime createdAt;
 
     @Column(name = "idempotency_key")
-    private String idempotencyKey;
+    private UUID idempotencyKey;
 }

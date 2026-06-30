@@ -24,5 +24,6 @@ CREATE TABLE conversions
     target_currency VARCHAR(3)     NOT NULL,
     target_amount   NUMERIC(18, 4) NOT NULL,
     exchange_rate   NUMERIC(18, 4) NOT NULL,
+    idempotency_key UUID UNIQUE    NOT NULL,
     created_at      TIMESTAMP      NOT NULL
 );

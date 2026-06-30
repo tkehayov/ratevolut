@@ -32,11 +32,9 @@ public class ConversionService {
 
     @Transactional
     public ConversionResponse create(Conversion conversion) {
-        if (conversion.idempotencyKey() != null) {
-            Optional<ConversionEntity> existing = conversionRepository.findByIdempotencyKey(conversion.idempotencyKey());
-            if (existing.isPresent()) {
-                return toResponse(existing.get());
-            }
+        Optional<ConversionEntity> existing = conversionRepository.findByIdempotencyKey(conversion.idempotencyKey());
+        if (existing.isPresent()) {
+            return toResponse(existing.get());
         }
 
         BalanceAmountView balances = balanceRepository
@@ -91,7 +89,7 @@ public class ConversionService {
 
     public Page<ConversionGetResponse> getConversions(Optional<UUID> clientId, Pageable pageable) {
         UUID targetId = clientId.orElse(null);
-        Page<ConversionEntity> entityPage = conversionRepository.findAllConversions(targetId,pageable);
+        Page<ConversionEntity> entityPage = conversionRepository.findAllConversions(targetId, pageable);
 
         return entityPage.map(this::convertToResponse);
     }

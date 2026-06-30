@@ -7,5 +7,5 @@ public record Conversion(UUID clientId,
                          String sourceCurrency,
                          String targetCurrency,
                          BigDecimal amount,
-                         String idempotencyKey) {
+                         UUID idempotencyKey) {
 }

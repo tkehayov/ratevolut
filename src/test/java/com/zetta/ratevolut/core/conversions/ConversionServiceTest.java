@@ -5,6 +5,7 @@ import com.zetta.ratevolut.core.rates.Rate;
 import com.zetta.ratevolut.core.rates.RateService;
 import com.zetta.ratevolut.rest.conversions.ConversionGetResponse;
 import com.zetta.ratevolut.rest.conversions.ConversionResponse;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -35,12 +36,18 @@ public class ConversionServiceTest extends BaseIntegrationTest {
     private ConversionService conversionService;
     @MockitoBean
     private RateService rateService;
+    private UUID idempotencyKey;
+
+    @BeforeEach
+    public void setup() {
+        idempotencyKey = UUID.randomUUID();
+    }
 
     @Test
     public void create() {
         Rate mockRate = new Rate("CAD", "USD", new BigDecimal("10.00"));
         UUID clientId = UUID.fromString("4b43cf01-fd6b-4fbd-b749-020ed1444552");
-        Conversion conversion = new Conversion(clientId, "CAD", "USD", new BigDecimal("5"), null);
+        Conversion conversion = new Conversion(clientId, "CAD", "USD", new BigDecimal("5"), idempotencyKey);
 
         when(rateService.getRate("CAD", "USD")).thenReturn(mockRate);
         ConversionResponse actual = conversionService.create(conversion);
@@ -57,7 +64,7 @@ public class ConversionServiceTest extends BaseIntegrationTest {
     @Test
     public void createBalanceNotFound() {
         UUID nonExistentClientId = UUID.randomUUID();
-        Conversion conversion = new Conversion(nonExistentClientId, "CAD", "USD", new BigDecimal("5"), null);
+        Conversion conversion = new Conversion(nonExistentClientId, "CAD", "USD", new BigDecimal("5"), idempotencyKey);
 
         assertThrows(BalanceNotFoundException.class, () -> conversionService.create(conversion));
     }
@@ -66,7 +73,7 @@ public class ConversionServiceTest extends BaseIntegrationTest {
     public void createInsufficientFunds() {
         Rate mockRate = new Rate("CAD", "USD", new BigDecimal("10.00"));
         UUID clientId = UUID.fromString("4b43cf01-fd6b-4fbd-b749-020ed1444552");
-        Conversion conversion = new Conversion(clientId, "CAD", "USD", new BigDecimal("10000"), null);
+        Conversion conversion = new Conversion(clientId, "CAD", "USD", new BigDecimal("10000"), idempotencyKey);
 
         when(rateService.getRate("CAD", "USD")).thenReturn(mockRate);
 
@@ -78,7 +85,6 @@ public class ConversionServiceTest extends BaseIntegrationTest {
     public void createWithIdempotency() {
         Rate mockRate = new Rate("CAD", "USD", new BigDecimal("10.00"));
         UUID clientId = UUID.fromString("4b43cf01-fd6b-4fbd-b749-020ed1444552");
-        String idempotencyKey = UUID.randomUUID().toString();
         Conversion conversion = new Conversion(clientId, "CAD", "USD", new BigDecimal("5"), idempotencyKey);
 
         when(rateService.getRate("CAD", "USD")).thenReturn(mockRate);
