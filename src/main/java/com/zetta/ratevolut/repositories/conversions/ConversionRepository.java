@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -16,4 +17,6 @@ public interface ConversionRepository extends JpaRepository<ConversionEntity, UU
                 WHERE (:clientId IS NULL OR c.client.id = :clientId)
             """)
     Page<ConversionEntity> findAllConversions(@Param("clientId") UUID clientId, Pageable pageable);
+
+    Optional<ConversionEntity> findByIdempotencyKey(String idempotencyKey);
 }

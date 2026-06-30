@@ -6,5 +6,6 @@ import java.util.UUID;
 public record Conversion(UUID clientId,
                          String sourceCurrency,
                          String targetCurrency,
-                         BigDecimal amount) {
+                         BigDecimal amount,
+                         String idempotencyKey) {
 }

@@ -28,11 +28,11 @@ public class ConversionController {
     @PostMapping
     public ResponseEntity<ConversionResponse> addConversion(
             @RequestHeader("X-Client-Id") UUID clientId,
+            @RequestHeader(value = "Idempotency-Key", required = false) String idempotencyKey,
             @Valid @RequestBody ConversionCreateRequest request) {
-        ConversionResponse response = conversionService.create(new Conversion(clientId,
-                request.sourceCurrency(),
-                request.targetCurrency(),
-                request.amount()));
+        ConversionResponse response = conversionService.create(
+                new Conversion(clientId, request.sourceCurrency(), request.targetCurrency(), request.amount(), idempotencyKey)
+        );
 
         return ResponseEntity.ok(response);
     }

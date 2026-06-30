@@ -1,0 +1,1 @@
+ALTER TABLE conversions ADD COLUMN idempotency_key VARCHAR(256) UNIQUE;

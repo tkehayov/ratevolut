@@ -32,6 +32,13 @@ public class ConversionService {
 
     @Transactional
     public ConversionResponse create(Conversion conversion) {
+        if (conversion.idempotencyKey() != null) {
+            Optional<ConversionEntity> existing = conversionRepository.findByIdempotencyKey(conversion.idempotencyKey());
+            if (existing.isPresent()) {
+                return toResponse(existing.get());
+            }
+        }
+
         BalanceAmountView balances = balanceRepository
                 .findAmountsByClientIdAndCurrencies(conversion.clientId(), conversion.sourceCurrency(), conversion.targetCurrency())
                 .orElseThrow(() -> new BalanceNotFoundException(conversion.clientId().toString()));
@@ -65,6 +72,7 @@ public class ConversionService {
                 .targetAmount(creditAmount)
                 .exchangeRate(exchangeRate)
                 .createdAt(LocalDateTime.now())
+                .idempotencyKey(conversion.idempotencyKey())
                 .build();
 
         ConversionEntity savedConversion = conversionRepository.save(conversionEntity);
@@ -97,6 +105,19 @@ public class ConversionService {
                 entity.getTargetCurrency(),
                 entity.getExchangeRate(),
                 entity.getCreatedAt()
+        );
+    }
+
+    private ConversionResponse toResponse(ConversionEntity entity) {
+        return new ConversionResponse(
+                entity.getId(),
+                entity.getSourceAmount(),
+                entity.getSourceCurrency(),
+                entity.getTargetAmount(),
+                entity.getTargetCurrency(),
+                entity.getExchangeRate(),
+                entity.getCreatedAt(),
+                null
         );
     }
 }

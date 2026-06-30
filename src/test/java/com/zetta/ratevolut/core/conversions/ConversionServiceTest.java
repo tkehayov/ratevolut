@@ -40,7 +40,7 @@ public class ConversionServiceTest extends BaseIntegrationTest {
     public void create() {
         Rate mockRate = new Rate("CAD", "USD", new BigDecimal("10.00"));
         UUID clientId = UUID.fromString("4b43cf01-fd6b-4fbd-b749-020ed1444552");
-        Conversion conversion = new Conversion(clientId, "CAD", "USD", new BigDecimal("5"));
+        Conversion conversion = new Conversion(clientId, "CAD", "USD", new BigDecimal("5"), null);
 
         when(rateService.getRate("CAD", "USD")).thenReturn(mockRate);
         ConversionResponse actual = conversionService.create(conversion);
@@ -57,7 +57,7 @@ public class ConversionServiceTest extends BaseIntegrationTest {
     @Test
     public void createBalanceNotFound() {
         UUID nonExistentClientId = UUID.randomUUID();
-        Conversion conversion = new Conversion(nonExistentClientId, "CAD", "USD", new BigDecimal("5"));
+        Conversion conversion = new Conversion(nonExistentClientId, "CAD", "USD", new BigDecimal("5"), null);
 
         assertThrows(BalanceNotFoundException.class, () -> conversionService.create(conversion));
     }
@@ -66,13 +66,30 @@ public class ConversionServiceTest extends BaseIntegrationTest {
     public void createInsufficientFunds() {
         Rate mockRate = new Rate("CAD", "USD", new BigDecimal("10.00"));
         UUID clientId = UUID.fromString("4b43cf01-fd6b-4fbd-b749-020ed1444552");
-        Conversion conversion = new Conversion(clientId, "CAD", "USD", new BigDecimal("10000"));
+        Conversion conversion = new Conversion(clientId, "CAD", "USD", new BigDecimal("10000"), null);
 
         when(rateService.getRate("CAD", "USD")).thenReturn(mockRate);
 
         assertThrows(InsufficientFundsException.class, () -> conversionService.create(conversion));
     }
 
+
+    @Test
+    public void createWithIdempotency() {
+        Rate mockRate = new Rate("CAD", "USD", new BigDecimal("10.00"));
+        UUID clientId = UUID.fromString("4b43cf01-fd6b-4fbd-b749-020ed1444552");
+        String idempotencyKey = UUID.randomUUID().toString();
+        Conversion conversion = new Conversion(clientId, "CAD", "USD", new BigDecimal("5"), idempotencyKey);
+
+        when(rateService.getRate("CAD", "USD")).thenReturn(mockRate);
+
+        ConversionResponse first = conversionService.create(conversion);
+        ConversionResponse second = conversionService.create(conversion);
+
+        assertEquals(first.transactionId(), second.transactionId());
+        assertEquals(first.sourceAmount(), second.sourceAmount());
+        assertEquals(first.targetAmount(), second.targetAmount());
+    }
 
     @Test
     public void getConversions() {

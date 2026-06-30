@@ -49,4 +49,7 @@ public class ConversionEntity {
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
+
+    @Column(name = "idempotency_key")
+    private String idempotencyKey;
 }

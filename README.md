@@ -45,3 +45,13 @@ ratevolut
 - The Spring profile (`prod`/`dev`) is set at build time via `--build-arg SPRING_PROFILES_ACTIVE`. The `dev` profile seeds test data; `prod` does not.
 - The service runs as a non-root user inside the container.
 - Port `8080` is the only port exposed.
+
+## Idempotency
+
+`POST /conversions` supports an optional `Idempotency-Key` header. If the same key is sent more than once within the persistence window no second debit occurs.
+
+**How it works:**
+
+1. The key is stored as a unique column on the `conversions` row at the time of the first successful request.
+2. On replay, the service looks up the existing row by key and returns it immediately — the balance update and Frankfurter API call are skipped entirely.
+3. If no key is provided the request is treated as a regular (non-idempotent) call.
