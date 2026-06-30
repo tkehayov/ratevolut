@@ -47,6 +47,15 @@ public class GlobalExceptionHandler {
     }
 
 
+    @ExceptionHandler(RateProviderUnavailableException.class)
+    public ProblemDetail handleRateProviderUnavailable(RateProviderUnavailableException ex) {
+        ProblemDetail problem = ProblemDetail.forStatus(HttpStatus.SERVICE_UNAVAILABLE);
+        problem.setTitle("RATE_PROVIDER_UNAVAILABLE");
+        problem.setDetail(ex.getMessage());
+
+        return problem;
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ProblemDetail handleValidation(MethodArgumentNotValidException ex) {
         String detail = ex.getBindingResult().getFieldErrors().stream()

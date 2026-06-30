@@ -1,6 +1,7 @@
 package com.zetta.ratevolut.core.rates.frankfurter;
 
 import com.zetta.ratevolut.core.exceptions.RateNotFoundException;
+import com.zetta.ratevolut.core.exceptions.RateProviderUnavailableException;
 import com.zetta.ratevolut.core.rates.FxRateProvider;
 import com.zetta.ratevolut.core.rates.Rate;
 import lombok.RequiredArgsConstructor;
@@ -8,6 +9,8 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpServerErrorException;
+import org.springframework.web.client.ResourceAccessException;
 import org.springframework.web.client.RestClient;
 
 import java.math.RoundingMode;
@@ -33,6 +36,8 @@ public class FrankfurterProvider implements FxRateProvider {
                     });
         } catch (HttpClientErrorException.UnprocessableContent e) {
             throw new RateNotFoundException(from, to);
+        } catch (HttpServerErrorException | ResourceAccessException e) {
+            throw new RateProviderUnavailableException(e.getMessage());
         }
 
         return response.stream()
